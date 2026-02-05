@@ -1,5 +1,4 @@
 import {
-	IconCode,
 	IconFile,
 	IconFolder,
 	IconGitBranch,
@@ -16,6 +15,7 @@ import type {
 	RepoTreeResponse,
 } from "@/lib/github-rest";
 import { fetchTopLevelCommits } from "@/lib/github-rest";
+import { CodePopover } from "./code-popover";
 
 export async function RepoFileTree({
 	repo,
@@ -55,12 +55,7 @@ export async function RepoFileTree({
 				<Button size="sm" variant="outline">
 					<IconPlus /> Add file
 				</Button>
-				<Button
-					className="border-green-700 bg-green-700 hover:bg-green-800"
-					size="sm"
-				>
-					<IconCode /> Code
-				</Button>
+				<CodePopover repoName={repo.name} userName={repo.owner.login} />
 			</div>
 			<Card className="gap-0 p-0">
 				{currentCommit && (

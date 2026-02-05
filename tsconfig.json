@@ -1,0 +1,6 @@
+{
+  "extends": "@shadcn-github/config/tsconfig.base.json",
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
+}

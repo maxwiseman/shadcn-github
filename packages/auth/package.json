@@ -1,0 +1,24 @@
+{
+  "name": "@shadcn-github/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@shadcn-github/db": "workspace:*",
+    "@shadcn-github/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@shadcn-github/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

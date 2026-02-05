@@ -28,6 +28,7 @@
     "fix": "ultracite fix"
   },
   "dependencies": {
+    "@octokit/rest": "^22.0.1",
     "@shadcn-github/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"

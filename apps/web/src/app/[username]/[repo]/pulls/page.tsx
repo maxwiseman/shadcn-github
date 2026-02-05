@@ -1,8 +1,9 @@
 import {
 	IconChevronLeft,
 	IconChevronRight,
-	IconCircleCheck,
-	IconCircleDot,
+	IconGitMerge,
+	IconGitPullRequest,
+	IconGitPullRequestClosed,
 	IconMessageCircle,
 	IconSearch,
 } from "@tabler/icons-react";
@@ -12,11 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { fetchIssues } from "@/lib/github-rest";
+import { fetchPullRequests } from "@/lib/github-rest";
 
 export const revalidate = 60;
 
-export default async function IssuesPage({
+export default async function PullRequestsPage({
 	params: paramsPromise,
 	searchParams: searchParamsPromise,
 }: {
@@ -33,14 +34,14 @@ export default async function IssuesPage({
 		| "all";
 	const perPage = 25;
 
-	const result = await fetchIssues(params.username, params.repo, {
+	const result = await fetchPullRequests(params.username, params.repo, {
 		page: currentPage,
 		perPage,
 		state: stateFilter,
 		query: query || undefined,
 	});
 
-	const issues = result?.issues ?? [];
+	const pulls = result?.pulls ?? [];
 	const totalCount = result?.totalCount ?? 0;
 	const totalPages = Math.ceil(totalCount / perPage);
 
@@ -62,19 +63,19 @@ export default async function IssuesPage({
 			p.delete("state");
 		}
 		const qs = p.toString();
-		return `/${params.username}/${params.repo}/issues${qs ? `?${qs}` : ""}` as `/${string}/${string}/issues${string}`;
+		return `/${params.username}/${params.repo}/pulls${qs ? `?${qs}` : ""}` as `/${string}/${string}/pulls${string}`;
 	};
 
 	return (
 		<>
 			<div className="flex items-center justify-between py-6">
-				<h1 className="font-bold text-3xl">Issues</h1>
+				<h1 className="font-bold text-3xl">Pull Requests</h1>
 			</div>
 			<Separator />
 			<div className="flex flex-col gap-4 py-6">
 				<div className="flex items-center gap-3">
 					<form
-						action={`/${params.username}/${params.repo}/issues`}
+						action={`/${params.username}/${params.repo}/pulls`}
 						className="relative grow"
 						method="GET"
 					>
@@ -83,7 +84,7 @@ export default async function IssuesPage({
 							className="bg-card pl-9"
 							defaultValue={query}
 							name="q"
-							placeholder="Search issues..."
+							placeholder="Search pull requests..."
 						/>
 						{stateFilter !== "open" && (
 							<input name="state" type="hidden" value={stateFilter} />
@@ -100,7 +101,7 @@ export default async function IssuesPage({
 							size="sm"
 							variant={stateFilter === "open" ? "secondary" : "ghost"}
 						>
-							<IconCircleDot className="size-4" />
+							<IconGitPullRequest className="size-4" />
 							Open
 						</Button>
 						<Button
@@ -113,7 +114,7 @@ export default async function IssuesPage({
 							size="sm"
 							variant={stateFilter === "closed" ? "secondary" : "ghost"}
 						>
-							<IconCircleCheck className="size-4" />
+							<IconGitPullRequestClosed className="size-4" />
 							Closed
 						</Button>
 					</div>
@@ -121,35 +122,35 @@ export default async function IssuesPage({
 
 				<Card className="gap-0 p-0">
 					<CardContent className="p-0">
-						{issues.length === 0 ? (
+						{pulls.length === 0 ? (
 							<div className="flex flex-col items-center justify-center gap-2 py-16 text-muted-foreground">
-								<IconCircleDot className="size-12 opacity-30" />
-								<p className="font-medium text-lg">No issues found</p>
+								<IconGitPullRequest className="size-12 opacity-30" />
+								<p className="font-medium text-lg">No pull requests found</p>
 								<p className="text-sm">
 									{query
 										? "Try a different search term."
-										: "There are no issues matching this filter."}
+										: "There are no pull requests matching this filter."}
 								</p>
 							</div>
 						) : (
 							<div className="divide-y">
-								{issues.map((issue) => (
+								{pulls.map((pr) => (
 									<Link
 										className="flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
-										href={`/${params.username}/${params.repo}/issues/${String(issue.number)}`}
-										key={issue.number}
+										href={`/${params.username}/${params.repo}/pulls/${String(pr.number)}`}
+										key={pr.number}
 									>
-										{issue.state === "open" ? (
-											<IconCircleDot className="mt-0.5 size-5 shrink-0 text-green-600" />
-										) : (
-											<IconCircleCheck className="mt-0.5 size-5 shrink-0 text-purple-600" />
-										)}
+										<PrStateIcon
+											draft={pr.draft}
+											merged={pr.merged_at !== null}
+											state={pr.state}
+										/>
 										<div className="flex min-w-0 grow flex-col gap-1">
 											<div className="flex items-center gap-2">
 												<span className="font-semibold leading-snug">
-													{issue.title}
+													{pr.title}
 												</span>
-												{issue.labels.map((label) => (
+												{pr.labels.map((label) => (
 													<span
 														className="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 font-medium text-xs"
 														key={label.id}
@@ -165,22 +166,22 @@ export default async function IssuesPage({
 											</div>
 											<div className="flex items-center gap-3 text-muted-foreground text-xs">
 												<span>
-													#{issue.number} opened{" "}
-													{formatRelativeDate(issue.created_at)}
-													{issue.user && ` by ${issue.user.login}`}
+													#{pr.number} opened{" "}
+													{formatRelativeDate(pr.created_at)}
+													{pr.user && ` by ${pr.user.login}`}
 												</span>
 											</div>
 										</div>
 										<div className="flex shrink-0 items-center gap-3">
-											{issue.user && (
+											{pr.user && (
 												<Avatar className="size-5">
-													<AvatarImage src={issue.user.avatar_url} />
+													<AvatarImage src={pr.user.avatar_url} />
 												</Avatar>
 											)}
-											{issue.comments > 0 && (
+											{(pr.comments > 0 || pr.review_comments > 0) && (
 												<span className="flex items-center gap-1 text-muted-foreground text-xs">
 													<IconMessageCircle className="size-4" />
-													{issue.comments}
+													{pr.comments + (pr.review_comments ?? 0)}
 												</span>
 											)}
 										</div>
@@ -230,6 +231,33 @@ export default async function IssuesPage({
 				)}
 			</div>
 		</>
+	);
+}
+
+function PrStateIcon({
+	state,
+	merged,
+	draft,
+}: {
+	state: "open" | "closed";
+	merged: boolean;
+	draft: boolean;
+}) {
+	if (merged) {
+		return <IconGitMerge className="mt-0.5 size-5 shrink-0 text-purple-600" />;
+	}
+	if (state === "closed") {
+		return (
+			<IconGitPullRequestClosed className="mt-0.5 size-5 shrink-0 text-red-600" />
+		);
+	}
+	if (draft) {
+		return (
+			<IconGitPullRequest className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+		);
+	}
+	return (
+		<IconGitPullRequest className="mt-0.5 size-5 shrink-0 text-green-600" />
 	);
 }
 

@@ -33,7 +33,8 @@ export async function RepoFileTree({
 		repo.name,
 		topLevelNames
 	);
-	const pullBase = `/${repo.owner.login}/${repo.name}/pull`;
+	const pullBase =
+		`/${repo.owner.login}/${repo.name}/pulls` as `/${string}/${string}/pulls`;
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -139,7 +140,7 @@ const CommitMessageLink = ({
 	basePath,
 	message,
 }: {
-	basePath: string;
+	basePath: `/${string}/${string}/pulls`;
 	message: string;
 }) => {
 	const headline = message.split("\\n")[0] ?? "";
@@ -176,7 +177,14 @@ const CommitMessageLink = ({
 						{part.text}
 					</Link>
 				) : (
-					<span key={`text-${index}`}>{part.text}</span>
+					<span
+						key={`text-${
+							// biome-ignore lint/suspicious/noArrayIndexKey: It's fine
+							index
+						}`}
+					>
+						{part.text}
+					</span>
 				)
 			)}
 		</span>

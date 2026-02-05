@@ -23,10 +23,11 @@ export function RepoNav({
 	repo: string;
 }) {
 	const pathname = usePathname();
-	const base = `/${username}/${repo}`;
+	const base = `/${username}/${repo}` as `/${string}/${string}`;
 
 	const isCode = pathname === base || pathname === `${base}/`;
 	const isIssues = pathname.startsWith(`${base}/issues`);
+	const isPulls = pathname.startsWith(`${base}/pulls`);
 
 	return (
 		<LayoutGroup>
@@ -56,11 +57,16 @@ export function RepoNav({
 					{isIssues && <Underline />}
 				</Button>
 				<Button
-					className="gap-2 text-muted-foreground"
+					className={
+						isPulls ? "relative gap-2" : "relative gap-2 text-muted-foreground"
+					}
+					render={<Link href={`${base}/pulls`} prefetch />}
 					size="sm"
 					variant="ghost"
 				>
-					<IconGitPullRequest /> Pull Requests
+					<IconGitPullRequest />
+					Pull Requests
+					{isPulls && <Underline />}
 				</Button>
 				<Button
 					className="gap-2 text-muted-foreground"

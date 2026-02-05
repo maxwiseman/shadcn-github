@@ -7,6 +7,7 @@ export function Underline() {
 			className="absolute inset-x-0 -bottom-1 h-0.5 translate-y-0.5 bg-primary"
 			key="underline"
 			layout
+			layoutId="underline"
 		/>
 	);
 }

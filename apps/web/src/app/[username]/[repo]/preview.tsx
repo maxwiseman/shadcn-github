@@ -22,8 +22,10 @@ export async function RepoPreview({ repo }: { repo: RepoResponse }) {
 					</Button>
 				</div>
 			</CardHeader>
-			<CardContent>
-				<Streamdown>{readmeText ?? "No README found."}</Streamdown>
+			<CardContent className="flex overflow-x-scroll">
+				<Streamdown className="w-0 grow">
+					{readmeText ?? "No README found."}
+				</Streamdown>
 			</CardContent>
 		</Card>
 	);

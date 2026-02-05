@@ -6,6 +6,7 @@ import {
 	IconPlus,
 	IconTag,
 } from "@tabler/icons-react";
+import Link from "next/link";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -32,6 +33,7 @@ export async function RepoFileTree({
 		repo.name,
 		topLevelNames
 	);
+	const pullBase = `/${repo.owner.login}/${repo.name}/pull`;
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -68,9 +70,10 @@ export async function RepoFileTree({
 						<span className="font-semibold text-foreground">
 							{currentCommit.author?.login}
 						</span>
-						<span className="line-clamp-1">
-							{currentCommit.commit.message.split("\n")[0]}
-						</span>
+						<CommitMessageLink
+							basePath={pullBase}
+							message={currentCommit.commit.message.split("\n")[0]}
+						/>
 						<div className="grow" />
 						<div className="rounded-full border px-1.25 py-0.75 text-xs">
 							{currentCommit.sha.substring(0, 7)}
@@ -95,7 +98,14 @@ export async function RepoFileTree({
 										</td>
 										<td className="text-muted-foreground">
 											<div className="line-clamp-1">
-												{itemCommit?.commit.message.split("\n")[0] ?? "—"}
+												{itemCommit ? (
+													<CommitMessageLink
+														basePath={pullBase}
+														message={itemCommit.commit.message.split("\n")[0]}
+													/>
+												) : (
+													"—"
+												)}
 											</div>
 										</td>
 										<td className="text-muted-foreground">
@@ -122,6 +132,56 @@ const formatDate = (value: string) =>
 		day: "numeric",
 		year: "numeric",
 	}).format(new Date(value));
+
+const PR_PATTERN = /#(\d+)/g;
+
+const CommitMessageLink = ({
+	basePath,
+	message,
+}: {
+	basePath: string;
+	message: string;
+}) => {
+	const headline = message.split("\\n")[0] ?? "";
+	const parts: Array<{ text: string; prNumber?: string }> = [];
+	let lastIndex = 0;
+	let match = PR_PATTERN.exec(headline);
+
+	while (match) {
+		const matchIndex = match.index;
+		const prNumber = match[1] ?? "";
+
+		if (matchIndex > lastIndex) {
+			parts.push({ text: headline.slice(lastIndex, matchIndex) });
+		}
+
+		parts.push({ text: `#${prNumber}`, prNumber });
+		lastIndex = matchIndex + match[0].length;
+		match = PR_PATTERN.exec(headline);
+	}
+
+	if (lastIndex < headline.length) {
+		parts.push({ text: headline.slice(lastIndex) });
+	}
+
+	return (
+		<span className="line-clamp-1">
+			{parts.map((part, index) =>
+				part.prNumber ? (
+					<Link
+						className="text-foreground underline underline-offset-2 transition-colors hover:text-foreground/80"
+						href={`${basePath}/${part.prNumber}`}
+						key={`${part.prNumber}-${index}`}
+					>
+						{part.text}
+					</Link>
+				) : (
+					<span key={`text-${index}`}>{part.text}</span>
+				)
+			)}
+		</span>
+	);
+};
 
 interface TreeNode {
 	name: string;

@@ -22,6 +22,7 @@ export function RepoAbout({ repo }: { repo: RepoResponse }) {
 				<a
 					className="flex items-center gap-1 font-medium text-blue-500 hover:underline"
 					href={repo.homepage}
+					target="_blank"
 				>
 					<IconLink className="relative top-px size-5" />
 					{repo.homepage.replace("https://", "")}

@@ -3,7 +3,7 @@ import {
 	IconBuildingStore,
 	IconCircleDot,
 	IconCode,
-	IconGitMerge,
+	IconGitPullRequest,
 	IconLayoutKanban,
 	IconMenu2,
 	IconShield,
@@ -114,7 +114,7 @@ export default async function RepoLayout({
 						size="sm"
 						variant="ghost"
 					>
-						<IconGitMerge /> Pull Requests
+						<IconGitPullRequest /> Pull Requests
 					</Button>
 					<Button
 						className="gap-2 text-muted-foreground"
@@ -146,7 +146,9 @@ export default async function RepoLayout({
 					</Button>
 				</div>
 			</header>
-			{children}
+			<main className="flex w-full justify-center px-6">
+				<div className="w-full max-w-7xl px-3 md:px-4 lg:px-5">{children}</div>
+			</main>
 		</>
 	);
 }

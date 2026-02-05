@@ -38,6 +38,7 @@ export async function generateStaticParams() {
 	const params = lines
 		.map((line) => {
 			const match = line.match(
+				// biome-ignore lint/performance/useTopLevelRegex: This is just for static generation
 				/\[([^\]]+)\]\(https:\/\/github\.com\/([^/]+)\/([^)]+)\)/
 			);
 			if (match) {
@@ -64,38 +65,32 @@ export default async function Home({
 	if (!repoData) {
 		notFound();
 	}
-	const { repo, latestCommit, openPulls, tree } = repoData;
+	const { repo, latestCommit, tree } = repoData;
 
 	return (
-		<main className="flex w-full justify-center px-6">
-			<div className="w-full max-w-6xl">
-				<div className="flex justify-between py-6">
-					<h1 className="font-bold text-3xl">{repo.name}</h1>
-					<div className="flex gap-2">
-						<Button size="sm" variant="outline">
-							Watch
-						</Button>
-						<Button size="sm" variant="outline">
-							Fork
-						</Button>
-						<Button size="sm" variant="outline">
-							Star
-						</Button>
-					</div>
-				</div>
-				<Separator />
-				<div className="flex w-full flex-nowrap gap-6 py-6">
-					<div className="flex grow flex-col gap-6">
-						<RepoFileTree
-							currentCommit={latestCommit}
-							repo={repo}
-							tree={tree}
-						/>
-						<RepoPreview repo={repo} />
-					</div>
-					<RepoAbout repo={repo} />
+		<>
+			<div className="flex justify-between py-6">
+				<h1 className="font-bold text-3xl">{repo.name}</h1>
+				<div className="flex gap-2">
+					<Button size="sm" variant="outline">
+						Watch
+					</Button>
+					<Button size="sm" variant="outline">
+						Fork
+					</Button>
+					<Button size="sm" variant="outline">
+						Star
+					</Button>
 				</div>
 			</div>
-		</main>
+			<Separator />
+			<div className="flex w-full flex-nowrap gap-6 py-6">
+				<div className="flex grow flex-col gap-6">
+					<RepoFileTree currentCommit={latestCommit} repo={repo} tree={tree} />
+					<RepoPreview repo={repo} />
+				</div>
+				<RepoAbout repo={repo} />
+			</div>
+		</>
 	);
 }

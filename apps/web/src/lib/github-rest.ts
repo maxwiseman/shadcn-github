@@ -137,6 +137,149 @@ export const fetchTopLevelCommits = async (
 	return Object.fromEntries(entries);
 };
 
+export interface IssueResponse {
+	number: number;
+	title: string;
+	state: "open" | "closed";
+	created_at: string;
+	updated_at: string;
+	comments: number;
+	body: string | null;
+	html_url: string;
+	user: {
+		login: string;
+		avatar_url: string;
+	} | null;
+	labels: Array<{
+		id: number;
+		name: string;
+		color: string;
+		description: string | null;
+	}>;
+	pull_request?: { url: string } | undefined;
+}
+
+export interface IssueCommentResponse {
+	id: number;
+	body: string;
+	created_at: string;
+	updated_at: string;
+	user: {
+		login: string;
+		avatar_url: string;
+	} | null;
+	author_association: string;
+}
+
+export interface IssueListResult {
+	issues: IssueResponse[];
+	totalCount: number;
+}
+
+export const fetchIssues = async (
+	owner: string,
+	repo: string,
+	options: {
+		page?: number;
+		perPage?: number;
+		state?: "open" | "closed" | "all";
+		query?: string;
+	} = {}
+): Promise<IssueListResult | null> => {
+	const { page = 1, perPage = 25, state = "open", query } = options;
+	try {
+		const octokit = createOctokit();
+
+		if (query) {
+			const stateFilter = state === "all" ? "" : ` is:${state}`;
+			const q = `repo:${owner}/${repo} is:issue${stateFilter} ${query}`;
+			const result = await octokit.request("GET /search/issues", {
+				q,
+				per_page: perPage,
+				page,
+				sort: "created",
+				order: "desc",
+			});
+			return {
+				issues: result.data.items as IssueResponse[],
+				totalCount: result.data.total_count,
+			};
+		}
+
+		const result = await octokit.request("GET /repos/{owner}/{repo}/issues", {
+			owner,
+			repo,
+			state,
+			per_page: perPage,
+			page,
+			sort: "created",
+			direction: "desc",
+		});
+
+		// Filter out pull requests from the issues list
+		const issues = (result.data as IssueResponse[]).filter(
+			(issue) => !issue.pull_request
+		);
+
+		// For total count, use the search API
+		const stateFilter = state === "all" ? "" : ` is:${state}`;
+		const countResult = await octokit.request("GET /search/issues", {
+			q: `repo:${owner}/${repo} is:issue${stateFilter}`,
+			per_page: 1,
+		});
+
+		return {
+			issues,
+			totalCount: countResult.data.total_count,
+		};
+	} catch {
+		return null;
+	}
+};
+
+export const fetchIssue = async (
+	owner: string,
+	repo: string,
+	issueNumber: number
+): Promise<IssueResponse | null> => {
+	try {
+		const octokit = createOctokit();
+		const result = await octokit.request(
+			"GET /repos/{owner}/{repo}/issues/{issue_number}",
+			{
+				owner,
+				repo,
+				issue_number: issueNumber,
+			}
+		);
+		return result.data as IssueResponse;
+	} catch {
+		return null;
+	}
+};
+
+export const fetchIssueComments = async (
+	owner: string,
+	repo: string,
+	issueNumber: number
+): Promise<IssueCommentResponse[]> => {
+	try {
+		const octokit = createOctokit();
+		const result = await octokit.request(
+			"GET /repos/{owner}/{repo}/issues/{issue_number}/comments",
+			{
+				owner,
+				repo,
+				issue_number: issueNumber,
+				per_page: 100,
+			}
+		);
+		return result.data as IssueCommentResponse[];
+	} catch {
+		return [];
+	}
+};
+
 export const fetchReadme = async (
 	owner: string,
 	repo: string

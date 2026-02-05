@@ -1,14 +1,4 @@
-import {
-	IconActivity,
-	IconBuildingStore,
-	IconCircleDot,
-	IconCode,
-	IconGitPullRequest,
-	IconLayoutKanban,
-	IconMenu2,
-	IconShield,
-	IconSlash,
-} from "@tabler/icons-react";
+import { IconMenu2, IconSlash } from "@tabler/icons-react";
 import Link from "next/link";
 import { Invertocat } from "@/components/invertocat";
 import {
@@ -20,7 +10,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Underline } from "./underline";
+import { RepoNav } from "./repo-nav";
 
 export default async function RepoLayout({
 	children,
@@ -83,68 +73,7 @@ export default async function RepoLayout({
 						</BreadcrumbList>
 					</Breadcrumb>
 				</div>
-				<div className="flex gap-2 pb-1">
-					<Button
-						className="relative gap-2"
-						render={
-							<Link href={`/${params.username}/${params.repo}`} prefetch />
-						}
-						size="sm"
-						variant="ghost"
-					>
-						<IconCode />
-						Code
-						<Underline />
-					</Button>
-					<Button
-						className="gap-2 text-muted-foreground"
-						render={
-							<Link
-								href={`/${params.username}/${params.repo}/issues`}
-								prefetch
-							/>
-						}
-						size="sm"
-						variant="ghost"
-					>
-						<IconCircleDot /> Issues
-					</Button>
-					<Button
-						className="gap-2 text-muted-foreground"
-						size="sm"
-						variant="ghost"
-					>
-						<IconGitPullRequest /> Pull Requests
-					</Button>
-					<Button
-						className="gap-2 text-muted-foreground"
-						size="sm"
-						variant="ghost"
-					>
-						<IconBuildingStore /> Marketplace
-					</Button>
-					<Button
-						className="gap-2 text-muted-foreground"
-						size="sm"
-						variant="ghost"
-					>
-						<IconLayoutKanban /> Projects
-					</Button>
-					<Button
-						className="gap-2 text-muted-foreground"
-						size="sm"
-						variant="ghost"
-					>
-						<IconShield /> Security
-					</Button>
-					<Button
-						className="gap-2 text-muted-foreground"
-						size="sm"
-						variant="ghost"
-					>
-						<IconActivity /> Insights
-					</Button>
-				</div>
+				<RepoNav repo={params.repo} username={params.username} />
 			</header>
 			<main className="flex w-full justify-center px-6">
 				<div className="w-full max-w-7xl px-3 md:px-4 lg:px-5">{children}</div>

@@ -415,6 +415,70 @@ export const fetchPullRequestComments = async (
 	}
 };
 
+export interface PrCommitResponse {
+	sha: string;
+	commit: {
+		message: string;
+		author: { name: string; date: string } | null;
+	};
+	author: { avatar_url: string | null; login: string | null } | null;
+}
+
+export interface PrFileResponse {
+	sha: string;
+	filename: string;
+	status: string;
+	additions: number;
+	deletions: number;
+	changes: number;
+	patch?: string;
+	previous_filename?: string;
+}
+
+export const fetchPullRequestCommits = async (
+	owner: string,
+	repo: string,
+	pullNumber: number
+): Promise<PrCommitResponse[]> => {
+	try {
+		const octokit = createOctokit();
+		const result = await octokit.request(
+			"GET /repos/{owner}/{repo}/pulls/{pull_number}/commits",
+			{
+				owner,
+				repo,
+				pull_number: pullNumber,
+				per_page: 100,
+			}
+		);
+		return result.data as PrCommitResponse[];
+	} catch {
+		return [];
+	}
+};
+
+export const fetchPullRequestFiles = async (
+	owner: string,
+	repo: string,
+	pullNumber: number
+): Promise<PrFileResponse[]> => {
+	try {
+		const octokit = createOctokit();
+		const result = await octokit.request(
+			"GET /repos/{owner}/{repo}/pulls/{pull_number}/files",
+			{
+				owner,
+				repo,
+				pull_number: pullNumber,
+				per_page: 100,
+			}
+		);
+		return result.data as PrFileResponse[];
+	} catch {
+		return [];
+	}
+};
+
 export const fetchReadme = async (
 	owner: string,
 	repo: string

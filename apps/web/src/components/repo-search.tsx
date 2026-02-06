@@ -93,7 +93,9 @@ export function RepoSearch() {
 	}
 
 	function handleKeyDown(e: React.KeyboardEvent) {
-		if (!isOpen || results.length === 0) return;
+		if (!isOpen || results.length === 0) {
+			return;
+		}
 
 		switch (e.key) {
 			case "ArrowDown":
@@ -115,6 +117,8 @@ export function RepoSearch() {
 			case "Escape":
 				setIsOpen(false);
 				inputRef.current?.blur();
+				break;
+			default:
 				break;
 		}
 	}
@@ -161,6 +165,7 @@ export function RepoSearch() {
 					{isLoading ? (
 						<div className="flex flex-col gap-3 p-3">
 							{Array.from({ length: 3 }).map((_, i) => (
+								// biome-ignore lint/suspicious/noArrayIndexKey: its ok
 								<div className="flex items-center gap-3" key={i}>
 									<Skeleton className="size-6 rounded-full" />
 									<div className="flex flex-1 flex-col gap-1.5">
@@ -173,10 +178,12 @@ export function RepoSearch() {
 					) : (
 						<ul className="flex flex-col py-1">
 							{results.map((result, index) => (
+								// biome-ignore lint/a11y/useFocusableInteractive: its ok
 								<li
 									aria-selected={activeIndex === index}
 									id={`search-result-${index}`}
 									key={result.id}
+									// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: its ok
 									role="option"
 								>
 									<Link

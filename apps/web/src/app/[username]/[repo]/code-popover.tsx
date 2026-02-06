@@ -19,7 +19,7 @@ export function CodePopover({
 			<PopoverTrigger
 				render={
 					<Button
-						className="border-green-700 bg-green-700 hover:bg-green-800"
+						className="border-green-700 bg-green-700 hover:bg-green-800 dark:text-foreground"
 						size="sm"
 					/>
 				}

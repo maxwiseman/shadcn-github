@@ -20,7 +20,7 @@ export function RepoAbout({ repo }: { repo: RepoResponse }) {
 			)}
 			{repo.homepage && (
 				<a
-					className="flex items-center gap-1 font-medium text-blue-500 hover:underline"
+					className="flex items-center gap-1 font-medium text-blue-500 hover:underline dark:text-blue-400"
 					href={repo.homepage}
 					target="_blank"
 				>

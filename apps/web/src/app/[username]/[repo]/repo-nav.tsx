@@ -31,7 +31,7 @@ export function RepoNav({
 
 	return (
 		<LayoutGroup>
-			<div className="flex gap-2 pb-1">
+			<div className="flex gap-2 overflow-x-auto pb-1">
 				<Button
 					className={
 						isCode ? "relative gap-2" : "relative gap-2 text-muted-foreground"

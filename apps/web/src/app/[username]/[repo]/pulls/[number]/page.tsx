@@ -106,7 +106,7 @@ export default async function PullRequestDetailPage({
 					</div>
 				</div>
 			</div>
-			<div className="flex gap-1 border-b">
+			<div className="flex gap-1 overflow-x-auto border-b">
 				<TabButton
 					active={activeTab === "conversation"}
 					// @ts-expect-error href type is weird
@@ -186,7 +186,7 @@ async function ConversationTab({
 	);
 
 	return (
-		<div className="flex gap-6 py-6">
+		<div className="flex flex-col gap-6 py-6 md:flex-row">
 			<div className="flex min-w-0 grow flex-col gap-4">
 				{pr.body && (
 					<CommentCard
@@ -708,7 +708,7 @@ function PrSidebar({
 	timeline: TimelineEvent[];
 }) {
 	return (
-		<div className="flex w-3xs shrink-0 flex-col gap-4">
+		<div className="flex w-full flex-col gap-4 md:w-3xs md:shrink-0">
 			<div className="flex flex-col gap-3">
 				<h3 className="font-semibold text-sm">Labels</h3>
 				{pr.labels.length > 0 ? (

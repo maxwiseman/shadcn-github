@@ -70,12 +70,12 @@ export default async function Home({
 				</div>
 			</div>
 			<Separator />
-			<div className="flex w-full flex-nowrap gap-6 py-6">
-				<div className="flex grow flex-col gap-6">
+			<div className="flex w-full flex-col gap-6 py-6 md:flex-row md:flex-nowrap">
+				<RepoAbout repo={repo} />
+				<div className="flex grow flex-col gap-6 md:order-first">
 					<RepoFileTree currentCommit={latestCommit} repo={repo} tree={tree} />
 					<RepoPreview repo={repo} />
 				</div>
-				<RepoAbout repo={repo} />
 			</div>
 		</>
 	);

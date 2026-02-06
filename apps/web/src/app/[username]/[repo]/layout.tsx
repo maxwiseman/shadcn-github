@@ -29,7 +29,7 @@ export default async function RepoLayout({
 
 	return (
 		<>
-			<header className="sticky top-0 z-50 w-full border-b bg-card px-10">
+			<header className="sticky top-0 z-50 w-full border-b bg-card px-4 md:px-10">
 				<div className="flex items-center gap-4 py-4">
 					<Button className="rounded-lg" size="icon-sm" variant="outline">
 						<IconMenu2 />
@@ -81,8 +81,8 @@ export default async function RepoLayout({
 				</div>
 				<RepoNav repo={params.repo} username={params.username} />
 			</header>
-			<main className="flex w-full justify-center px-6">
-				<div className="w-full max-w-7xl px-3 md:px-4 lg:px-5">{children}</div>
+			<main className="flex w-full justify-center px-3 md:px-6">
+				<div className="w-full max-w-7xl px-0 md:px-4 lg:px-5">{children}</div>
 			</main>
 		</>
 	);

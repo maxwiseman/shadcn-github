@@ -13,7 +13,7 @@ import type { RepoResponse } from "@/lib/github-rest";
 
 export function RepoAbout({ repo }: { repo: RepoResponse }) {
 	return (
-		<div className="flex w-3xs shrink-0 flex-col gap-4">
+		<div className="flex w-full flex-col gap-4 md:w-3xs md:shrink-0">
 			<h2 className="font-semibold text-xl">About</h2>
 			{repo.description && (
 				<p className="text-muted-foreground">{repo.description}</p>

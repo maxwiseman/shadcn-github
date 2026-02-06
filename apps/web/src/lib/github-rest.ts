@@ -479,6 +479,88 @@ export const fetchPullRequestFiles = async (
 	}
 };
 
+export interface TimelineEvent {
+	id?: number;
+	event: string;
+	created_at: string;
+	actor?: {
+		login: string;
+		avatar_url: string;
+	} | null;
+	// For "commented" events
+	body?: string;
+	user?: {
+		login: string;
+		avatar_url: string;
+	} | null;
+	author_association?: string;
+	// For "labeled" / "unlabeled" events
+	label?: {
+		name: string;
+		color: string;
+	};
+	// For "renamed" events
+	rename?: {
+		from: string;
+		to: string;
+	};
+	// For "milestoned" / "demilestoned" events
+	milestone?: {
+		title: string;
+	};
+	// For "assigned" / "unassigned" events
+	assignee?: {
+		login: string;
+		avatar_url: string;
+	};
+	// For "review_requested" / "review_request_removed" events
+	requested_reviewer?: {
+		login: string;
+		avatar_url: string;
+	};
+	// For "committed" events
+	sha?: string;
+	message?: string;
+	// For "merged" events
+	commit_id?: string;
+	// For "referenced" / "cross-referenced" events
+	source?: {
+		issue?: {
+			number: number;
+			title: string;
+		};
+	};
+	// For "closed" events
+	state_reason?: string;
+	// For "locked" events
+	lock_reason?: string;
+}
+
+export const fetchTimelineEvents = async (
+	owner: string,
+	repo: string,
+	issueNumber: number
+): Promise<TimelineEvent[]> => {
+	try {
+		const octokit = createOctokit();
+		const result = await octokit.request(
+			"GET /repos/{owner}/{repo}/issues/{issue_number}/timeline",
+			{
+				owner,
+				repo,
+				issue_number: issueNumber,
+				per_page: 100,
+				headers: {
+					accept: "application/vnd.github.mockingbird-preview+json",
+				},
+			}
+		);
+		return result.data as unknown as TimelineEvent[];
+	} catch {
+		return [];
+	}
+};
+
 export const fetchReadme = async (
 	owner: string,
 	repo: string

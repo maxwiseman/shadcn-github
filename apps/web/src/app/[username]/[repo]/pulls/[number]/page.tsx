@@ -1,11 +1,23 @@
 import {
 	IconArrowLeft,
+	IconCircleCheck,
+	IconCircleDot,
 	IconCode,
+	IconEdit,
+	IconEye,
+	IconEyeX,
 	IconGitCommit,
 	IconGitMerge,
 	IconGitPullRequest,
 	IconGitPullRequestClosed,
+	IconLock,
 	IconMessageCircle,
+	IconPennant,
+	IconPennantOff,
+	IconTag,
+	IconTagOff,
+	IconUserMinus,
+	IconUserPlus,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,12 +29,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
 	fetchPullRequest,
-	fetchPullRequestComments,
 	fetchPullRequestCommits,
 	fetchPullRequestFiles,
-	type IssueCommentResponse,
+	fetchTimelineEvents,
 	type PrFileResponse,
 	type PullRequestResponse,
+	type TimelineEvent,
 } from "@/lib/github-rest";
 import { PrFileDiff } from "./pr-file-diff";
 
@@ -167,7 +179,7 @@ async function ConversationTab({
 	pr: PullRequestResponse;
 	params: { username: string; repo: string; number: string };
 }) {
-	const comments = await fetchPullRequestComments(
+	const timeline = await fetchTimelineEvents(
 		params.username,
 		params.repo,
 		Number(params.number)
@@ -185,26 +197,371 @@ async function ConversationTab({
 					/>
 				)}
 
-				{comments.map((comment) => (
-					<CommentCard
-						authorAssociation={comment.author_association}
-						body={comment.body}
-						createdAt={comment.created_at}
-						key={comment.id}
-						user={comment.user}
-					/>
-				))}
+				{timeline.map((event) => {
+					if (event.event === "commented" && event.body) {
+						return (
+							<CommentCard
+								authorAssociation={event.author_association ?? "NONE"}
+								body={event.body}
+								createdAt={event.created_at}
+								key={event.id}
+								user={event.user ?? event.actor ?? null}
+							/>
+						);
+					}
+					return (
+						<TimelineEventItem
+							event={event}
+							key={`${event.event}-${event.created_at}-${String(event.id ?? "")}`}
+						/>
+					);
+				})}
 
-				{comments.length === 0 && !pr.body && (
+				{timeline.length === 0 && !pr.body && (
 					<div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
 						<p className="text-sm">No comments yet.</p>
 					</div>
 				)}
 			</div>
 
-			<PrSidebar comments={comments} params={params} pr={pr} />
+			<PrSidebar params={params} pr={pr} timeline={timeline} />
 		</div>
 	);
+}
+
+// ─── Timeline Event Rendering ───────────────────────────────────────
+
+function TimelineEventItem({ event }: { event: TimelineEvent }) {
+	const content = getTimelineContent(event);
+	if (!content) {
+		return null;
+	}
+
+	return (
+		<div className="flex items-center gap-3 py-1 pl-4">
+			<div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
+				{content.icon}
+			</div>
+			<div className="flex min-w-0 items-center gap-1.5 text-sm">
+				{event.actor && (
+					<Avatar className="size-4">
+						<AvatarImage src={event.actor.avatar_url} />
+					</Avatar>
+				)}
+				{content.message}
+				<span className="shrink-0 text-muted-foreground text-xs">
+					{formatRelativeDate(event.created_at)}
+				</span>
+			</div>
+		</div>
+	);
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: It's Ok as long as Claude understands it lol
+function getTimelineContent(
+	event: TimelineEvent
+): { icon: React.ReactNode; message: React.ReactNode } | null {
+	switch (event.event) {
+		case "labeled": {
+			return {
+				icon: <IconTag className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">added</span>
+						{event.label && (
+							<span
+								className="inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs"
+								style={{
+									backgroundColor: `#${event.label.color}20`,
+									color: `#${event.label.color}`,
+									border: `1px solid #${event.label.color}40`,
+								}}
+							>
+								{event.label.name}
+							</span>
+						)}
+					</span>
+				),
+			};
+		}
+		case "unlabeled": {
+			return {
+				icon: <IconTagOff className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">removed</span>
+						{event.label && (
+							<span
+								className="inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs"
+								style={{
+									backgroundColor: `#${event.label.color}20`,
+									color: `#${event.label.color}`,
+									border: `1px solid #${event.label.color}40`,
+								}}
+							>
+								{event.label.name}
+							</span>
+						)}
+					</span>
+				),
+			};
+		}
+		case "milestoned": {
+			return {
+				icon: <IconPennant className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">
+							added this to the{" "}
+							<span className="font-medium text-foreground">
+								{event.milestone?.title}
+							</span>{" "}
+							milestone
+						</span>
+					</span>
+				),
+			};
+		}
+		case "demilestoned": {
+			return {
+				icon: <IconPennantOff className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">
+							removed this from the{" "}
+							<span className="font-medium text-foreground">
+								{event.milestone?.title}
+							</span>{" "}
+							milestone
+						</span>
+					</span>
+				),
+			};
+		}
+		case "renamed": {
+			return {
+				icon: <IconEdit className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">changed the title</span>
+						<span className="line-through">{event.rename?.from}</span>
+						<span>{event.rename?.to}</span>
+					</span>
+				),
+			};
+		}
+		case "assigned": {
+			return {
+				icon: <IconUserPlus className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">assigned</span>
+						<span className="font-medium">
+							{event.assignee?.login ?? "someone"}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "unassigned": {
+			return {
+				icon: <IconUserMinus className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">unassigned</span>
+						<span className="font-medium">
+							{event.assignee?.login ?? "someone"}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "closed": {
+			return {
+				icon: <IconCircleCheck className="size-3.5 text-purple-600" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">closed this</span>
+					</span>
+				),
+			};
+		}
+		case "reopened": {
+			return {
+				icon: <IconCircleDot className="size-3.5 text-green-600" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">reopened this</span>
+					</span>
+				),
+			};
+		}
+		case "locked": {
+			return {
+				icon: <IconLock className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">
+							locked this conversation
+							{event.lock_reason ? ` as ${event.lock_reason}` : ""}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "merged": {
+			return {
+				icon: <IconGitMerge className="size-3.5 text-purple-600" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">
+							merged commit{" "}
+							{event.commit_id && (
+								<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+									{event.commit_id.substring(0, 7)}
+								</code>
+							)}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "referenced": {
+			return {
+				icon: <IconGitCommit className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">
+							referenced this
+							{event.commit_id && (
+								<>
+									{" "}
+									in commit{" "}
+									<code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+										{event.commit_id.substring(0, 7)}
+									</code>
+								</>
+							)}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "cross-referenced": {
+			return {
+				icon: <IconGitCommit className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">
+							mentioned this
+							{event.source?.issue && (
+								<>
+									{" "}
+									in{" "}
+									<span className="font-medium text-foreground">
+										#{event.source.issue.number}
+									</span>
+								</>
+							)}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "review_requested": {
+			return {
+				icon: <IconEye className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">requested review from</span>
+						<span className="font-medium">
+							{event.requested_reviewer?.login ?? "someone"}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "review_request_removed": {
+			return {
+				icon: <IconEyeX className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5">
+						<span className="font-medium">
+							{event.actor?.login ?? "Someone"}
+						</span>
+						<span className="text-muted-foreground">
+							removed review request for
+						</span>
+						<span className="font-medium">
+							{event.requested_reviewer?.login ?? "someone"}
+						</span>
+					</span>
+				),
+			};
+		}
+		case "committed": {
+			return {
+				icon: <IconGitCommit className="size-3.5 text-muted-foreground" />,
+				message: (
+					<span className="flex items-center gap-1.5 text-muted-foreground">
+						<span className="line-clamp-1">
+							{event.message?.split("\n")[0] ?? "committed"}
+						</span>
+						{event.sha && (
+							<code className="shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+								{event.sha.substring(0, 7)}
+							</code>
+						)}
+					</span>
+				),
+			};
+		}
+		default: {
+			return null;
+		}
+	}
 }
 
 // ─── Commits Tab ────────────────────────────────────────────────────
@@ -342,11 +699,11 @@ function FileCard({ file }: { file: PrFileResponse }) {
 function PrSidebar({
 	pr,
 	params,
-	comments,
+	timeline,
 }: {
 	pr: PullRequestResponse;
 	params: { username: string; repo: string };
-	comments: IssueCommentResponse[];
+	timeline: TimelineEvent[];
 }) {
 	return (
 		<div className="flex w-3xs shrink-0 flex-col gap-4">
@@ -387,7 +744,7 @@ function PrSidebar({
 			<div className="flex flex-col gap-3">
 				<h3 className="font-semibold text-sm">Participants</h3>
 				<div className="flex flex-wrap gap-1">
-					{getParticipants(pr, comments).map((participant) => (
+					{getParticipants(pr, timeline).map((participant) => (
 						<Avatar className="size-6" key={participant.login}>
 							<AvatarImage src={participant.avatar_url} />
 						</Avatar>
@@ -492,7 +849,7 @@ function PrStateBadge({
 
 function getParticipants(
 	pr: PullRequestResponse,
-	comments: IssueCommentResponse[]
+	timeline: TimelineEvent[]
 ): Array<{ login: string; avatar_url: string }> {
 	const seen = new Set<string>();
 	const participants: Array<{ login: string; avatar_url: string }> = [];
@@ -502,10 +859,11 @@ function getParticipants(
 		participants.push(pr.user);
 	}
 
-	for (const comment of comments) {
-		if (comment.user && !seen.has(comment.user.login)) {
-			seen.add(comment.user.login);
-			participants.push(comment.user);
+	for (const event of timeline) {
+		const user = event.user ?? event.actor;
+		if (user && !seen.has(user.login)) {
+			seen.add(user.login);
+			participants.push(user);
 		}
 	}
 

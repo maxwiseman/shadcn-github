@@ -92,7 +92,7 @@ export async function RepoFileTree({
 											)}
 											{item.name}
 										</td>
-										<td className="text-muted-foreground">
+										<td className="hidden text-muted-foreground md:table-cell">
 											<div className="line-clamp-1">
 												{itemCommit ? (
 													<CommitMessageLink

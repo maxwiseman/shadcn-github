@@ -212,7 +212,7 @@ async function ConversationTab({
 					return (
 						<TimelineEventItem
 							event={event}
-							key={`${event.event}-${event.created_at}-${String(event.id ?? "")}`}
+							key={`${event.event}-${event.created_at}-${String(event.id ?? event.sha ?? "")}`}
 						/>
 					);
 				})}
@@ -236,6 +236,7 @@ function TimelineEventItem({ event }: { event: TimelineEvent }) {
 	if (!content) {
 		return null;
 	}
+	console.log(event);
 
 	return (
 		<div className="flex items-center gap-3 py-1 pl-4">
@@ -249,9 +250,11 @@ function TimelineEventItem({ event }: { event: TimelineEvent }) {
 					</Avatar>
 				)}
 				{content.message}
-				<span className="shrink-0 text-muted-foreground text-xs">
-					{formatRelativeDate(event.created_at)}
-				</span>
+				{event.created_at && (
+					<span className="shrink-0 text-muted-foreground text-xs">
+						{formatRelativeDate(event.created_at)}
+					</span>
+				)}
 			</div>
 		</div>
 	);
@@ -358,8 +361,7 @@ function getTimelineContent(
 						<span className="font-medium">
 							{event.actor?.login ?? "Someone"}
 						</span>
-						<span className="text-muted-foreground">changed the title</span>
-						<span className="line-through">{event.rename?.from}</span>
+						<span className="text-muted-foreground">changed the title to</span>
 						<span>{event.rename?.to}</span>
 					</span>
 				),

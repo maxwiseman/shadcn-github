@@ -25,7 +25,9 @@ export function RepoAbout({ repo }: { repo: RepoResponse }) {
 					target="_blank"
 				>
 					<IconLink className="relative top-px size-5" />
-					{repo.homepage.replace("https://", "")}
+					<span className="line-clamp-1">
+						{repo.homepage.replace("https://", "")}
+					</span>
 				</a>
 			)}
 			<div className="flex flex-col gap-2">

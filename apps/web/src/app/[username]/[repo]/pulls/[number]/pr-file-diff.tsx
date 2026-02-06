@@ -18,8 +18,8 @@ export function PrFileDiff({
 				diffStyle: "unified",
 				disableFileHeader: true,
 				theme: {
-					light: "pierre-light",
-					dark: "pierre-dark",
+					light: "github-light",
+					dark: "github-dark-default",
 				},
 				overflow: "scroll",
 			}}

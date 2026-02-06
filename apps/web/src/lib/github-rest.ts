@@ -561,6 +561,45 @@ export const fetchTimelineEvents = async (
 	}
 };
 
+export interface RepoSearchResult {
+	id: number;
+	full_name: string;
+	description: string | null;
+	stargazers_count: number;
+	owner: {
+		login: string;
+		avatar_url: string;
+	};
+}
+
+export const searchRepositories = async (
+	query: string,
+	perPage = 5
+): Promise<RepoSearchResult[]> => {
+	if (!query.trim()) return [];
+	try {
+		const octokit = createOctokit();
+		const result = await octokit.request("GET /search/repositories", {
+			q: query,
+			per_page: perPage,
+			sort: "stars",
+			order: "desc",
+		});
+		return result.data.items.map((item) => ({
+			id: item.id,
+			full_name: item.full_name,
+			description: item.description,
+			stargazers_count: item.stargazers_count,
+			owner: {
+				login: item.owner?.login ?? "",
+				avatar_url: item.owner?.avatar_url ?? "",
+			},
+		}));
+	} catch {
+		return [];
+	}
+};
+
 export const fetchReadme = async (
 	owner: string,
 	repo: string

@@ -81,7 +81,7 @@ export default async function IssueDetailPage({
 				</div>
 			</div>
 			<Separator />
-			<div className="flex gap-6 py-6">
+			<div className="flex flex-col gap-6 py-6 md:flex-row">
 				<div className="flex min-w-0 grow flex-col gap-4">
 					{issue.body && (
 						<CommentCard
@@ -119,7 +119,7 @@ export default async function IssueDetailPage({
 					)}
 				</div>
 
-				<div className="flex w-3xs shrink-0 flex-col gap-4">
+				<div className="flex w-full flex-col gap-4 md:w-3xs md:shrink-0">
 					<div className="flex flex-col gap-3">
 						<h3 className="font-semibold text-sm">Labels</h3>
 						{issue.labels.length > 0 ? (

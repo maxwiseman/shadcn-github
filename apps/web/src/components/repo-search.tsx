@@ -64,10 +64,10 @@ export function RepoSearch() {
 	useEffect(() => {
 		if (results.length > 0) {
 			const topResult = results[0];
-			const url = `/${topResult.full_name}`;
-			if (url !== prefetchedUrl) {
+			const url = `/${topResult.full_name}` as never;
+			if ((url as string) !== prefetchedUrl) {
 				router.prefetch(url);
-				setPrefetchedUrl(url);
+				setPrefetchedUrl(url as string);
 			}
 		}
 	}, [results, router, prefetchedUrl]);
@@ -89,7 +89,7 @@ export function RepoSearch() {
 	function navigateToResult(result: RepoSearchResult) {
 		setIsOpen(false);
 		setQuery("");
-		router.push(`/${result.full_name}`);
+		router.push(`/${result.full_name}` as never);
 	}
 
 	function handleKeyDown(e: React.KeyboardEvent) {
@@ -182,7 +182,7 @@ export function RepoSearch() {
 									aria-selected={activeIndex === index}
 								>
 									<Link
-										href={`/${result.full_name}`}
+										href={`/${result.full_name}` as never}
 										className={`flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-accent ${
 											activeIndex === index ? "bg-accent" : ""
 										}`}

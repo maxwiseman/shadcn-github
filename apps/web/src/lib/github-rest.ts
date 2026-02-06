@@ -1,4 +1,5 @@
 import { Octokit } from "@octokit/rest";
+import { throwIfRateLimit } from "./errors";
 
 export interface RepoResponse {
 	name: string;
@@ -77,7 +78,8 @@ export const fetchRepoInfo = async (
 			repo: name,
 		});
 		return repo.data as RepoResponse;
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return null;
 	}
 };
@@ -117,7 +119,8 @@ export const fetchRepoOverview = async (
 			latestCommit: (commits.data[0] as CommitResponse | undefined) ?? null,
 			openPulls: pulls.data.total_count,
 		};
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return null;
 	}
 };
@@ -144,7 +147,8 @@ export const fetchTopLevelCommits = async (
 					path,
 					(commits.data[0] as CommitResponse | undefined) ?? null,
 				] as const;
-			} catch {
+			} catch (error) {
+				throwIfRateLimit(error);
 				return [path, null] as const;
 			}
 		})
@@ -248,7 +252,8 @@ export const fetchIssues = async (
 			issues,
 			totalCount: countResult.data.total_count,
 		};
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return null;
 	}
 };
@@ -269,7 +274,8 @@ export const fetchIssue = async (
 			}
 		);
 		return result.data as IssueResponse;
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return null;
 	}
 };
@@ -291,7 +297,8 @@ export const fetchIssueComments = async (
 			}
 		);
 		return result.data as IssueCommentResponse[];
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return [];
 	}
 };
@@ -382,7 +389,8 @@ export const fetchPullRequests = async (
 			pulls: result.data as unknown as PullRequestResponse[],
 			totalCount: countResult.data.total_count,
 		};
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return null;
 	}
 };
@@ -403,7 +411,8 @@ export const fetchPullRequest = async (
 			}
 		);
 		return result.data as unknown as PullRequestResponse;
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return null;
 	}
 };
@@ -426,7 +435,8 @@ export const fetchPullRequestComments = async (
 			}
 		);
 		return result.data as IssueCommentResponse[];
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return [];
 	}
 };
@@ -468,7 +478,8 @@ export const fetchPullRequestCommits = async (
 			}
 		);
 		return result.data as PrCommitResponse[];
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return [];
 	}
 };
@@ -490,7 +501,8 @@ export const fetchPullRequestFiles = async (
 			}
 		);
 		return result.data as PrFileResponse[];
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return [];
 	}
 };
@@ -572,7 +584,8 @@ export const fetchTimelineEvents = async (
 			}
 		);
 		return result.data as unknown as TimelineEvent[];
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return [];
 	}
 };
@@ -611,7 +624,8 @@ export const searchRepositories = async (
 				avatar_url: item.owner?.avatar_url ?? "",
 			},
 		}));
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return [];
 	}
 };
@@ -631,7 +645,8 @@ export const fetchReadme = async (
 		});
 
 		return typeof response.data === "string" ? response.data : null;
-	} catch {
+	} catch (error) {
+		throwIfRateLimit(error);
 		return null;
 	}
 };

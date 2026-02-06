@@ -4,6 +4,8 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { RepoSearch } from "@/components/repo-search";
 import { getDemoRepos, isDemoMode } from "@/lib/demo";
 
+export const revalidate = false;
+
 export default function Page() {
 	const demoMode = isDemoMode();
 	const demoRepos = getDemoRepos();

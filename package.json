@@ -30,7 +30,9 @@
   "dependencies": {
     "@octokit/rest": "^22.0.1",
     "@shadcn-github/env": "workspace:*",
+    "@tabler/icons-react": "^3.36.1",
     "dotenv": "catalog:",
+    "react": "^19.2.4",
     "zod": "catalog:"
   },
   "devDependencies": {

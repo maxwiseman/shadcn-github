@@ -66,6 +66,22 @@ const createOctokit = () => {
 	});
 };
 
+export const fetchRepoInfo = async (
+	owner: string,
+	name: string
+): Promise<RepoResponse | null> => {
+	try {
+		const octokit = createOctokit();
+		const repo = await octokit.request("GET /repos/{owner}/{repo}", {
+			owner,
+			repo: name,
+		});
+		return repo.data as RepoResponse;
+	} catch {
+		return null;
+	}
+};
+
 export const fetchRepoOverview = async (
 	owner: string,
 	name: string

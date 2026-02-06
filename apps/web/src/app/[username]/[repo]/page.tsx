@@ -1,39 +1,25 @@
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { getDemoRepos, isDemoMode } from "@/lib/demo";
 import { fetchRepoOverview } from "@/lib/github-rest";
 import { RepoAbout } from "./about";
 import { RepoFileTree } from "./file-tree";
 import { RepoPreview } from "./preview";
 
-// interface RepoEntry {
-// 	name: string;
-// 	type: "blob" | "tree";
-// }
-
-// const formatCount = (value: number) => new Intl.NumberFo(),
-// 	RepoAboutrmat;
-// ("en-US",
-// {
-// 	notation: "compact",
-// 	maximumFractionDigits: 1,
-// }).format(value);
-
-// const formatDate = (value: string) =>
-// 	new Intl.DateTimeFormat("en-US", {
-// 		month: "short",
-// 		day: "numeric",
-// 		year: "numeric",
-// 	}).format(new Date(value));
-
 export const revalidate = 3600; // 1 hour
 
 export async function generateStaticParams() {
+	const demoRepos = getDemoRepos();
+	if (isDemoMode()) {
+		return demoRepos.map((r) => ({ username: r.owner, repo: r.repo }));
+	}
+
 	const list = await fetch(
 		"https://github.com/EvanLi/Github-Ranking/raw/refs/heads/master/Top100/JavaScript.md"
 	);
 	const text = await list.text();
-	const lines = text.split("\n").slice(1); // Skip the header line
+	const lines = text.split("\n").slice(1);
 
 	const params = lines
 		.map((line) => {

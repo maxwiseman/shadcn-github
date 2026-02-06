@@ -1,5 +1,6 @@
 import { IconMenu2, IconSlash } from "@tabler/icons-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Invertocat } from "@/components/invertocat";
 import {
 	Breadcrumb,
@@ -10,6 +11,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { isRepoAllowed } from "@/lib/demo";
 import { RepoNav } from "./repo-nav";
 
 export default async function RepoLayout({
@@ -20,6 +22,10 @@ export default async function RepoLayout({
 	params: Promise<{ username: string; repo: string }>;
 }>) {
 	const params = await paramsPromise;
+
+	if (!isRepoAllowed(params.username, params.repo)) {
+		notFound();
+	}
 
 	return (
 		<>

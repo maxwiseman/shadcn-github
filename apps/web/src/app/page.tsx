@@ -1,8 +1,13 @@
+import { DemoRepoList } from "@/components/demo-repo-list";
 import { Invertocat } from "@/components/invertocat";
 import { ModeToggle } from "@/components/mode-toggle";
 import { RepoSearch } from "@/components/repo-search";
+import { getDemoRepos, isDemoMode } from "@/lib/demo";
 
 export default function Page() {
+	const demoMode = isDemoMode();
+	const demoRepos = getDemoRepos();
+
 	return (
 		<main className="flex min-h-svh flex-col items-center justify-center bg-background px-4">
 			<div className="absolute top-4 right-4">
@@ -15,10 +20,12 @@ export default function Page() {
 						Explore GitHub Repositories
 					</h1>
 					<p className="text-center text-muted-foreground text-sm">
-						Search for any repository to get started
+						{demoMode
+							? "Select a repository to get started"
+							: "Search for any repository to get started"}
 					</p>
 				</div>
-				<RepoSearch />
+				{demoMode ? <DemoRepoList repos={demoRepos} /> : <RepoSearch />}
 			</div>
 		</main>
 	);

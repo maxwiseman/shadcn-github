@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { IconSearch, IconStar } from "@tabler/icons-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -98,15 +98,11 @@ export function RepoSearch() {
 		switch (e.key) {
 			case "ArrowDown":
 				e.preventDefault();
-				setActiveIndex((prev) =>
-					prev < results.length - 1 ? prev + 1 : 0
-				);
+				setActiveIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0));
 				break;
 			case "ArrowUp":
 				e.preventDefault();
-				setActiveIndex((prev) =>
-					prev > 0 ? prev - 1 : results.length - 1
-				);
+				setActiveIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1));
 				break;
 			case "Enter":
 				e.preventDefault();
@@ -131,39 +127,41 @@ export function RepoSearch() {
 	};
 
 	return (
-		<div ref={containerRef} className="relative w-full max-w-xl">
+		<div className="relative w-full max-w-xl" ref={containerRef}>
 			<div className="relative">
 				<IconSearch className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 				<Input
-					ref={inputRef}
-					className="h-11 pl-9 pr-4 text-base"
-					placeholder="Search repositories..."
-					value={query}
-					onChange={(e) => setQuery(e.target.value)}
-					onFocus={() => {
-						if (results.length > 0) setIsOpen(true);
-					}}
-					onKeyDown={handleKeyDown}
-					role="combobox"
-					aria-expanded={isOpen}
-					aria-controls="search-results"
 					aria-activedescendant={
 						activeIndex >= 0 ? `search-result-${activeIndex}` : undefined
 					}
+					aria-controls="search-results"
+					aria-expanded={isOpen}
 					autoComplete="off"
+					className="h-11 bg-card pr-4 pl-9 text-base"
+					onChange={(e) => setQuery(e.target.value)}
+					onFocus={() => {
+						if (results.length > 0) {
+							setIsOpen(true);
+						}
+					}}
+					onKeyDown={handleKeyDown}
+					placeholder="Search repositories..."
+					ref={inputRef}
+					role="combobox"
+					value={query}
 				/>
 			</div>
 
 			{isOpen && (
 				<div
+					className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-lg border border-border bg-popover shadow-lg"
 					id="search-results"
 					role="listbox"
-					className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-lg border border-border bg-popover shadow-lg"
 				>
 					{isLoading ? (
 						<div className="flex flex-col gap-3 p-3">
 							{Array.from({ length: 3 }).map((_, i) => (
-								<div key={i} className="flex items-center gap-3">
+								<div className="flex items-center gap-3" key={i}>
 									<Skeleton className="size-6 rounded-full" />
 									<div className="flex flex-1 flex-col gap-1.5">
 										<Skeleton className="h-4 w-2/3" />
@@ -176,16 +174,16 @@ export function RepoSearch() {
 						<ul className="flex flex-col py-1">
 							{results.map((result, index) => (
 								<li
-									key={result.id}
-									id={`search-result-${index}`}
-									role="option"
 									aria-selected={activeIndex === index}
+									id={`search-result-${index}`}
+									key={result.id}
+									role="option"
 								>
 									<Link
-										href={`/${result.full_name}` as never}
 										className={`flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-accent ${
 											activeIndex === index ? "bg-accent" : ""
 										}`}
+										href={`/${result.full_name}` as never}
 										onClick={() => {
 											setIsOpen(false);
 											setQuery("");
@@ -193,8 +191,8 @@ export function RepoSearch() {
 									>
 										<Avatar size="sm">
 											<AvatarImage
-												src={result.owner.avatar_url}
 												alt={result.owner.login}
+												src={result.owner.avatar_url}
 											/>
 											<AvatarFallback>
 												{result.owner.login.charAt(0).toUpperCase()}

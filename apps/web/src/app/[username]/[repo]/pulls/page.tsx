@@ -139,6 +139,7 @@ export default async function PullRequestsPage({
 										className="flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
 										href={`/${params.username}/${params.repo}/pulls/${String(pr.number)}`}
 										key={pr.number}
+										prefetch
 									>
 										<PrStateIcon
 											draft={pr.draft}

@@ -9,6 +9,7 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ComponentProps } from "react";
 import { Streamdown } from "streamdown";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -96,18 +97,21 @@ export default async function PullRequestDetailPage({
 			<div className="flex gap-1 border-b">
 				<TabButton
 					active={activeTab === "conversation"}
+					// @ts-expect-error href type is weird
 					href={basePath}
 					icon={<IconMessageCircle className="size-4" />}
 					label="Conversation"
 				/>
 				<TabButton
 					active={activeTab === "commits"}
+					// @ts-expect-error href type is weird
 					href={`${basePath}?tab=commits`}
 					icon={<IconGitCommit className="size-4" />}
 					label="Commits"
 				/>
 				<TabButton
 					active={activeTab === "files"}
+					// @ts-expect-error href type is weird
 					href={`${basePath}?tab=files`}
 					icon={<IconCode className="size-4" />}
 					label="Files changed"
@@ -132,7 +136,7 @@ function TabButton({
 	icon,
 	active,
 }: {
-	href: string;
+	href: ComponentProps<typeof Link>["href"];
 	label: string;
 	icon: React.ReactNode;
 	active: boolean;
@@ -144,7 +148,7 @@ function TabButton({
 					? "relative gap-1.5 rounded-b-none border-b-2 border-b-primary"
 					: "relative gap-1.5 rounded-b-none text-muted-foreground"
 			}
-			render={<Link href={href} />}
+			render={<Link href={href} prefetch />}
 			size="sm"
 			variant="ghost"
 		>

@@ -1,70 +1,80 @@
 # shadcn-github
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, and more.
+A GitHub repository browser built with Next.js and shadcn/ui. Search and explore GitHub repositories with syntax-highlighted code preview, pull requests, issues, and an interactive file tree.
 
 ## Features
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Drizzle** - TypeScript-first ORM
-- **PostgreSQL** - Database engine
-- **Authentication** - Better-Auth
-- **Biome** - Linting and formatting
-- **Turborepo** - Optimized monorepo build system
+- **Repository search** - Find any GitHub repository by name
+- **Code browsing** - Navigate files with an interactive file tree and syntax-highlighted code preview
+- **Pull requests** - View pull request details and file diffs
+- **Issues** - Browse and read repository issues
+- **Dark mode** - Light and dark theme support
+- **Demo mode** - Configure predefined repositories for showcasing without hitting API rate limits
+
+## Tech Stack
+
+- [Next.js 16](https://nextjs.org) (App Router, React Server Components)
+- [React 19](https://react.dev) with React Compiler
+- [shadcn/ui](https://ui.shadcn.com) component library
+- [TailwindCSS 4](https://tailwindcss.com)
+- [Octokit](https://github.com/octokit/rest.js) for GitHub API
+- [Better-Auth](https://www.better-auth.com) for authentication
+- [Drizzle ORM](https://orm.drizzle.team) with PostgreSQL (Neon)
+- [Turborepo](https://turbo.build) monorepo
 
 ## Getting Started
 
-First, install the dependencies:
-
 ```bash
+# Install dependencies
 bun install
-```
 
-## Database Setup
+# Set up environment variables
+cp apps/web/.env.example apps/web/.env
+# Edit .env with your database URL, auth secret, and optionally a GitHub token
 
-This project uses PostgreSQL with Drizzle ORM.
-
-1. Make sure you have a PostgreSQL database set up.
-2. Update your `apps/web/.env` file with your PostgreSQL connection details.
-
-3. Apply the schema to your database:
-
-```bash
+# Push database schema
 bun run db:push
-```
 
-Then, run the development server:
-
-```bash
+# Start development server
 bun run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the fullstack application.
-
-## Git Hooks and Formatting
-
-- Format and lint fix: `bun run check`
+Open [http://localhost:3000](http://localhost:3000) to use the app.
 
 ## Project Structure
 
 ```
 shadcn-github/
 ├── apps/
-│   └── web/         # Fullstack application (Next.js)
+│   └── web/                # Next.js application
+│       ├── src/app/        # App Router pages
+│       ├── src/components/ # React components
+│       └── src/lib/        # GitHub API client, utilities
 ├── packages/
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
+│   ├── auth/               # Better-Auth configuration
+│   ├── db/                 # Drizzle ORM database layer
+│   ├── env/                # Environment variable validation (T3 Env)
+│   └── config/             # Shared TypeScript config
 ```
 
-## Available Scripts
+## Scripts
 
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run db:push`: Push schema changes to database
-- `bun run db:generate`: Generate database client/types
-- `bun run db:migrate`: Run database migrations
-- `bun run db:studio`: Open database studio UI
-- `bun run check`: Run Biome formatting and linting
+| Command | Description |
+| --- | --- |
+| `bun run dev` | Start all apps in development mode |
+| `bun run build` | Build all packages and apps |
+| `bun run check-types` | TypeScript type checking |
+| `bun run check` | Lint and format check |
+| `bun run fix` | Auto-fix lint and format issues |
+| `bun run db:push` | Push schema changes to database |
+| `bun run db:studio` | Open Drizzle Studio |
+
+## Environment Variables
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `BETTER_AUTH_SECRET` | Yes | Auth secret (32+ characters) |
+| `BETTER_AUTH_URL` | Yes | App URL for auth |
+| `GITHUB_TOKEN` | No | GitHub PAT for higher rate limits |
+| `DEMO_REPOS` | No | Comma-separated `owner/repo` list for demo mode |

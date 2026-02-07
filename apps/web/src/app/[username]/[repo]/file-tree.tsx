@@ -1,5 +1,4 @@
 import {
-	IconFile,
 	IconFolder,
 	IconGitBranch,
 	IconPlus,
@@ -16,6 +15,14 @@ import type {
 } from "@/lib/github-rest";
 import { fetchTopLevelCommits } from "@/lib/github-rest";
 import { CodePopover } from "./code-popover";
+import { InteractiveFileTree } from "./interactive-file-tree";
+
+export interface TreeNode {
+	name: string;
+	path: string;
+	children: TreeNode[];
+	isFile: boolean;
+}
 
 export async function RepoFileTree({
 	repo,
@@ -27,6 +34,7 @@ export async function RepoFileTree({
 	currentCommit: CommitResponse | null;
 }) {
 	const treeStructure = pathsToTree(tree.tree);
+	sortTree(treeStructure);
 	const topLevelNames = treeStructure.children.map((item) => item.name);
 	const topLevelCommits = await fetchTopLevelCommits(
 		repo.owner.login,
@@ -77,45 +85,13 @@ export async function RepoFileTree({
 					</CardHeader>
 				)}
 				<CardContent className="p-0">
-					<table className="w-full table-fixed">
-						<tbody className="divide-y">
-							{treeStructure.children.map((item) => {
-								const itemCommit = topLevelCommits[item.name];
-
-								return (
-									<tr className="items-center *:h-10" key={item.name}>
-										<td className="flex items-center gap-4 pl-4 font-medium">
-											{item.isFile ? (
-												<IconFile className="size-5 text-muted-foreground" />
-											) : (
-												<IconFolder className="size-5 text-muted-foreground" />
-											)}
-											{item.name}
-										</td>
-										<td className="hidden text-muted-foreground md:table-cell">
-											<div className="line-clamp-1">
-												{itemCommit ? (
-													<CommitMessageLink
-														basePath={pullBase}
-														message={itemCommit.commit.message.split("\n")[0]}
-													/>
-												) : (
-													"—"
-												)}
-											</div>
-										</td>
-										<td className="text-muted-foreground">
-											<div className="flex justify-end pr-4">
-												{itemCommit?.commit.author?.date
-													? formatDate(itemCommit.commit.author.date)
-													: "—"}
-											</div>
-										</td>
-									</tr>
-								);
-							})}
-						</tbody>
-					</table>
+					<InteractiveFileTree
+						defaultBranch={repo.default_branch}
+						repoName={repo.name}
+						repoOwner={repo.owner.login}
+						topLevelCommits={topLevelCommits}
+						tree={treeStructure}
+					/>
 				</CardContent>
 			</Card>
 		</div>
@@ -186,10 +162,16 @@ const CommitMessageLink = ({
 	);
 };
 
-interface TreeNode {
-	name: string;
-	children: TreeNode[];
-	isFile: boolean;
+function sortTree(node: TreeNode) {
+	node.children.sort((a, b) => {
+		if (a.isFile === b.isFile) {
+			return a.name.localeCompare(b.name);
+		}
+		return a.isFile ? 1 : -1;
+	});
+	for (const child of node.children) {
+		sortTree(child);
+	}
 }
 
 function pathsToTree(
@@ -199,7 +181,12 @@ function pathsToTree(
 		sha: string;
 	}[]
 ) {
-	const tree: TreeNode = { name: "root", children: [], isFile: false };
+	const tree: TreeNode = {
+		name: "root",
+		path: "",
+		children: [],
+		isFile: false,
+	};
 
 	// biome-ignore lint/complexity/noForEach: That's stupid
 	items.forEach((item) => {
@@ -210,8 +197,12 @@ function pathsToTree(
 			let childNode = currentNode.children.find((child) => child.name === part);
 
 			if (!childNode) {
+				const childPath = currentNode.path
+					? `${currentNode.path}/${part}`
+					: part;
 				childNode = {
 					name: part,
+					path: childPath,
 					children: [],
 					isFile: item.type === "blob" && index === parts.length - 1,
 				};
@@ -224,3 +215,5 @@ function pathsToTree(
 
 	return tree;
 }
+
+export { formatDate, CommitMessageLink };

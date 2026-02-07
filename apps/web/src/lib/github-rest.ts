@@ -651,3 +651,31 @@ export const fetchReadme = async (
 		return null;
 	}
 };
+
+export const fetchFileContent = async (
+	owner: string,
+	repo: string,
+	path: string,
+	ref?: string
+): Promise<string | null> => {
+	try {
+		const octokit = createOctokit();
+		const response = await octokit.request(
+			"GET /repos/{owner}/{repo}/contents/{path}",
+			{
+				owner,
+				repo,
+				path,
+				...(ref ? { ref } : {}),
+				headers: {
+					accept: "application/vnd.github.raw+json",
+				},
+			}
+		);
+
+		return typeof response.data === "string" ? response.data : null;
+	} catch (error) {
+		throwIfRateLimit(error);
+		return null;
+	}
+};

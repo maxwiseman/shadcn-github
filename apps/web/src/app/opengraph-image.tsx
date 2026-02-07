@@ -15,6 +15,7 @@ async function loadGoogleFont(font: string, text: string) {
 	const url = `https://fonts.googleapis.com/css2?family=${font}:wght@600&text=${encodeURIComponent(text)}`;
 	const css = await (await fetch(url)).text();
 	const resource = css.match(
+		// biome-ignore lint/performance/useTopLevelRegex: This is an OG image -- performance is not critical here
 		/src: url\((.+)\) format\('(opentype|truetype)'\)/
 	);
 

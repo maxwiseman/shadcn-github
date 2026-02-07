@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { DemoRepoList } from "@/components/demo-repo-list";
 import { Invertocat } from "@/components/invertocat";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -5,6 +6,12 @@ import { RepoSearch } from "@/components/repo-search";
 import { getDemoRepos, isDemoMode } from "@/lib/demo";
 
 export const revalidate = false;
+
+export const metadata: Metadata = {
+	title: "shadcn-github",
+	description:
+		"Search and explore GitHub repositories with an intuitive interface. View code, pull requests, issues, and more.",
+};
 
 export default function Page() {
 	const demoMode = isDemoMode();

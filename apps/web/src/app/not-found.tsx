@@ -33,11 +33,9 @@ export default function NotFound() {
 						doesn&apos;t exist on GitHub — or it may be private.
 					</p>
 				</div>
-				<Button asChild variant="outline">
-					<Link href="/">
-						<Invertocat className="size-4" />
-						Back to search
-					</Link>
+				<Button render={<Link href="/" />} variant="outline">
+					<Invertocat className="size-4" />
+					Back to search
 				</Button>
 			</div>
 		</main>
@@ -73,22 +71,24 @@ function DemoNotFound() {
 						<div className="flex flex-wrap justify-center gap-2">
 							{demoRepos.map((repo) => (
 								<Button
-									asChild
 									key={repo.full_name}
+									render={
+										<Link
+											href={`/${repo.full_name}` as `/${string}/${string}`}
+										/>
+									}
 									size="sm"
 									variant="outline"
 								>
-									<Link href={`/${repo.full_name}`}>{repo.full_name}</Link>
+									{repo.full_name}
 								</Button>
 							))}
 						</div>
 					</div>
 				) : null}
-				<Button asChild variant="outline">
-					<Link href="/">
-						<Invertocat className="size-4" />
-						Go home
-					</Link>
+				<Button render={<Link href="/" />} variant="outline">
+					<Invertocat className="size-4" />
+					Go home
 				</Button>
 			</div>
 		</main>

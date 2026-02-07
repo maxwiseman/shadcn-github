@@ -1,4 +1,5 @@
 import { IconMenu2, IconSlash } from "@tabler/icons-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Invertocat } from "@/components/invertocat";
@@ -12,7 +13,37 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { isRepoAllowed } from "@/lib/demo";
+import { fetchRepoInfo } from "@/lib/github-rest";
 import { RepoNav } from "./repo-nav";
+
+export async function generateMetadata({
+	params: paramsPromise,
+}: {
+	params: Promise<{ username: string; repo: string }>;
+}): Promise<Metadata> {
+	const params = await paramsPromise;
+	const repoInfo = await fetchRepoInfo(params.username, params.repo);
+
+	const title = `${params.username}/${params.repo}`;
+	const description = repoInfo?.description
+		? repoInfo.description
+		: `Explore ${params.username}/${params.repo} on GitHub`;
+
+	return {
+		title,
+		description,
+		openGraph: {
+			title,
+			description,
+			type: "website",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title,
+			description,
+		},
+	};
+}
 
 export default async function RepoLayout({
 	children,

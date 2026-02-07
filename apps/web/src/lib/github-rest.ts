@@ -15,6 +15,7 @@ export interface RepoResponse {
 	subscribers_count: number;
 	open_issues_count: number;
 	license: { name: string } | null;
+	language: string | null;
 	owner: {
 		login: string;
 		avatar_url: string;

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -8,6 +9,41 @@ import { RepoFileTree } from "./file-tree";
 import { RepoPreview } from "./preview";
 
 export const revalidate = 3600; // 1 hour
+
+export async function generateMetadata({
+	params: paramsPromise,
+}: {
+	params: Promise<{ username: string; repo: string }>;
+}): Promise<Metadata> {
+	const params = await paramsPromise;
+	const repoData = await fetchRepoOverview(params.username, params.repo);
+
+	if (!repoData) {
+		return {
+			title: `${params.username}/${params.repo}`,
+			description: "Repository not found",
+		};
+	}
+
+	const { repo } = repoData;
+	const description =
+		repo.description || `Explore ${params.username}/${params.repo} on GitHub`;
+
+	return {
+		title: repo.name,
+		description,
+		openGraph: {
+			title: `${params.username}/${params.repo}`,
+			description,
+			type: "website",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `${params.username}/${params.repo}`,
+			description,
+		},
+	};
+}
 
 export async function generateStaticParams() {
 	const demoRepos = getDemoRepos();

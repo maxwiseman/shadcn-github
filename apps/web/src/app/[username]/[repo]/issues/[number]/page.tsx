@@ -15,6 +15,7 @@ import {
 	IconUserMinus,
 	IconUserPlus,
 } from "@tabler/icons-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Streamdown } from "streamdown";
@@ -30,6 +31,49 @@ import {
 } from "@/lib/github-rest";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+	params: paramsPromise,
+}: {
+	params: Promise<{ username: string; repo: string; number: string }>;
+}): Promise<Metadata> {
+	const params = await paramsPromise;
+	const issueNumber = Number(params.number);
+
+	if (Number.isNaN(issueNumber)) {
+		return {
+			title: "Issue Not Found",
+		};
+	}
+
+	const issue = await fetchIssue(params.username, params.repo, issueNumber);
+
+	if (!issue) {
+		return {
+			title: "Issue Not Found",
+		};
+	}
+
+	const stateLabel = issue.state === "open" ? "Open" : "Closed";
+	const description = issue.body
+		? issue.body.slice(0, 160)
+		: `${stateLabel} issue in ${params.username}/${params.repo}`;
+
+	return {
+		title: `${issue.title} #${issue.number}`,
+		description,
+		openGraph: {
+			title: `${issue.title} #${issue.number}`,
+			description,
+			type: "website",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `${issue.title} #${issue.number}`,
+			description,
+		},
+	};
+}
 
 export default async function IssueDetailPage({
 	params: paramsPromise,

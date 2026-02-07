@@ -19,6 +19,7 @@ import {
 	IconUserMinus,
 	IconUserPlus,
 } from "@tabler/icons-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ComponentProps } from "react";
@@ -39,6 +40,58 @@ import {
 import { PrFileDiff } from "./pr-file-diff";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+	params: paramsPromise,
+}: {
+	params: Promise<{ username: string; repo: string; number: string }>;
+}): Promise<Metadata> {
+	const params = await paramsPromise;
+	const pullNumber = Number(params.number);
+
+	if (Number.isNaN(pullNumber)) {
+		return {
+			title: "Pull Request Not Found",
+		};
+	}
+
+	const pr = await fetchPullRequest(params.username, params.repo, pullNumber);
+
+	if (!pr) {
+		return {
+			title: "Pull Request Not Found",
+		};
+	}
+
+	const isMerged = pr.merged_at !== null;
+	const stateLabel = isMerged
+		? "Merged"
+		: // biome-ignore lint/style/noNestedTernary: It's not that confusing
+			pr.state === "closed"
+			? "Closed"
+			: // biome-ignore lint/style/noNestedTernary: It's not that confusing
+				pr.draft
+				? "Draft"
+				: "Open";
+	const description = pr.body
+		? pr.body.slice(0, 160)
+		: `${stateLabel} pull request in ${params.username}/${params.repo}`;
+
+	return {
+		title: `${pr.title} #${pr.number}`,
+		description,
+		openGraph: {
+			title: `${pr.title} #${pr.number}`,
+			description,
+			type: "website",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `${pr.title} #${pr.number}`,
+			description,
+		},
+	};
+}
 
 type PrTab = "conversation" | "commits" | "files";
 

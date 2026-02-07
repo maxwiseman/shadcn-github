@@ -1,8 +1,14 @@
 import { auth } from "@shadcn-github/auth";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import Dashboard from "./dashboard";
+
+export const metadata: Metadata = {
+	title: "Dashboard",
+	description: "Your shadcn-github dashboard",
+};
 
 export default async function DashboardPage() {
 	const session = await auth.api.getSession({

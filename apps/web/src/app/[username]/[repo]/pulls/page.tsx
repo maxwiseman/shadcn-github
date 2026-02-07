@@ -7,6 +7,7 @@ import {
 	IconMessageCircle,
 	IconSearch,
 } from "@tabler/icons-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,19 @@ import { Separator } from "@/components/ui/separator";
 import { fetchPullRequests } from "@/lib/github-rest";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+	params: paramsPromise,
+}: {
+	params: Promise<{ username: string; repo: string }>;
+}): Promise<Metadata> {
+	const params = await paramsPromise;
+
+	return {
+		title: "Pull Requests",
+		description: `Browse and explore pull requests for ${params.username}/${params.repo} on GitHub`,
+	};
+}
 
 export default async function PullRequestsPage({
 	params: paramsPromise,

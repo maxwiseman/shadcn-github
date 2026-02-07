@@ -1,5 +1,6 @@
 "use client";
 
+import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "./ui/sonner";
 
@@ -13,6 +14,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		>
 			{children}
 			<Toaster richColors />
+			<Analytics />
 		</ThemeProvider>
 	);
 }

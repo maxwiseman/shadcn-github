@@ -34,6 +34,7 @@ export async function generateMetadata({
 		description,
 		openGraph: {
 			title: `${params.username}/${params.repo}`,
+			siteName: "shadcn-github",
 			description,
 			type: "website",
 		},
@@ -41,6 +42,7 @@ export async function generateMetadata({
 			card: "summary_large_image",
 			title: `${params.username}/${params.repo}`,
 			description,
+			site: "@maxwiseman_",
 		},
 	};
 }

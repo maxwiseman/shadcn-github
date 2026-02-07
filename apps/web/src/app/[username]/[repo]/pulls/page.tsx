@@ -26,8 +26,20 @@ export async function generateMetadata({
 	const params = await paramsPromise;
 
 	return {
-		title: "Pull Requests",
+		title: `Pull Requests - ${params.username}/${params.repo}`,
 		description: `Browse and explore pull requests for ${params.username}/${params.repo} on GitHub`,
+		openGraph: {
+			title: `Pull Requests - ${params.username}/${params.repo}`,
+			siteName: "shadcn-github",
+			description: `Browse and explore pull requests for ${params.username}/${params.repo} on GitHub`,
+			type: "website",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `Pull Requests - ${params.username}/${params.repo}`,
+			description: `Browse and explore pull requests for ${params.username}/${params.repo} on GitHub`,
+			site: "@maxwiseman_",
+		},
 	};
 }
 

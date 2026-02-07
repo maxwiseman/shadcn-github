@@ -11,6 +11,20 @@ export const metadata: Metadata = {
 	title: "shadcn-github",
 	description:
 		"Search and explore GitHub repositories with an intuitive interface. View code, pull requests, issues, and more.",
+	openGraph: {
+		title: "shadcn-github",
+		siteName: "shadcn-github",
+		description:
+			"Search and explore GitHub repositories with an intuitive interface. View code, pull requests, issues, and more.",
+		type: "website",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "shadcn-github",
+		description:
+			"Search and explore GitHub repositories with an intuitive interface. View code, pull requests, issues, and more.",
+		site: "@maxwiseman_",
+	},
 };
 
 export default function Page() {

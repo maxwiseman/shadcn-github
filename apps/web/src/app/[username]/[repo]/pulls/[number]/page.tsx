@@ -84,11 +84,13 @@ export async function generateMetadata({
 			title: `${pr.title} #${pr.number}`,
 			description,
 			type: "website",
+			siteName: "shadcn-github",
 		},
 		twitter: {
 			card: "summary_large_image",
 			title: `${pr.title} #${pr.number}`,
 			description,
+			site: "@maxwiseman_",
 		},
 	};
 }
